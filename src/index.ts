@@ -1,8 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import http from "http";
 import { startServer } from "./Helper/startServer";
-import { UserClient } from "./Services/UserService/UserClient";
-import { verifyToken } from "./middlewares/authMiddleware";
 import { authRouter } from "./Routes/users";
 import dotenv from "dotenv";
 declare global {
@@ -13,7 +10,7 @@ declare global {
   }
 }
 const app: Express = express();
-const port = 3000;
+const port = 3080;
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
 dotenv.config();
