@@ -21,6 +21,7 @@ enum Avatar {
 const schema = new Schema<IUser>({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  avatar : Number
 });
 
 const User = mongoose.model<IUser>("user", schema);

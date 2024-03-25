@@ -3,7 +3,7 @@ import http from "http";
 import { startServer } from "./Helper/startServer";
 import { UserClient } from "./Services/UserService/UserClient";
 import { verifyToken } from "./middlewares/authMiddleware";
-import { authRouter } from "./Routes/users";
+import { authRouter } from "./Routes/auth";
 import dotenv from "dotenv";
 declare global {
   namespace Express {
@@ -21,5 +21,5 @@ dotenv.config();
 app.get("/api/v0.1/health", async (req: Request, res: Response) => {
   res.status(200).json("Pong!");
 });
-app.use("/api/v0.1/auth", authRouter);
+app.use("/api/v0.1/auth",verifyToken, authRouter);
 app.listen(port, async () => startServer(port));
