@@ -1,49 +1,47 @@
 import { KeyJetError } from "../../Models/KeyJetError";
-import { IRoom, Room, UserPerformance } from "../../Models/Room";
+import { IRoom, RaceStatus, Room, UserPerformance } from "../../Models/Room";
 import { RaceHandleFactory } from "../../RaceHandlerFactory/RaceHandleFactory";
+import { v4 as guid } from "uuid";
 import { IRoomService } from "./IRoomService";
 
 const raceHandler = RaceHandleFactory();
+
+
 export const RoomService: IRoomService = {
-  getRoomData: async function (roomId: string): Promise<IRoom> {
+  createRoom: async function (username): Promise<IRoom> {
     try {
-      if (raceHandler.has(roomId)) {
-        return raceHandler.get(roomId) as IRoom;
-      }
-      const room = await Room.findOne({ roomId });
-      if (!room) {
-        throw new KeyJetError("Room by this roomId does not exist", 404);
-      }
-      raceHandler.set(roomId, room);
+      const roomId = guid();
+      const createTime = new Date();
+      const room: IRoom = {
+        roomId: roomId,
+        createTime: createTime,
+        players: [],
+        currentStatus: RaceStatus.INITIALISED,
+        startTime: undefined
+      };
+      const newRoom = new Room(room);
+      await newRoom.save();
       return room;
     } catch (err) {
       throw err;
     }
   },
-  postSelfPerformanceToRoom: async function (
+  postSelfPerformanceToRoom: function (
     userPerformance: UserPerformance,
     roomId: string
   ): Promise<void> {
-    try {
-      if (!raceHandler.has(roomId)) {
-        throw new KeyJetError("Room does not exist", 404);
-      }
-      if (userPerformance.time > 30) {
-        await Room.findByIdAndUpdate({ roomId }, raceHandler.get(roomId), {
-          upsert: true,
-        });
-      }
-      raceHandler.get(roomId)?.players.push(userPerformance);
-    } catch (err) {
-      throw err;
-    }
+    throw new Error("Function not implemented.");
   },
-  createRoom: function (hostUsername : string,): Promise<void> {
-    try {
-    
-    }
-    catch(err) {
-
-    }
+  getResultsForRace: function (roomId: string): Promise<IRoom> {
+    throw new Error("Function not implemented.");
   },
+  joinRoom: async function (roomId: string, username: string): Promise<IRoom> {
+    throw new Error("Function not implemented.");
+  },
+  getRoomData: function (roomId: string): Promise<IRoom> {
+    throw new Error("Function not implemented.");
+  },
+  getRacingHistory: function (username: string): Promise<IRoom[]> {
+    throw new Error("Function not implemented.");
+  }
 };

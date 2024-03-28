@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 
 export type IRoom = {
   createTime: Date;
-  startTime: Date|undefined|null;
+  startTime: Date | undefined | null;
   roomId: string;
   players: Array<Player>; // username against Userperformance
   currentStatus: RaceStatus;
@@ -18,7 +18,7 @@ export enum RaceStatus {
   INTERMEDIATE = 1, // BOTH PLAYERS JOINED BUT WAITING
   STARTED = 2, // RACE STARTED
   ENDED = 3, // ISN'T IT OBVIOUS
-  DEPRECATED = 4
+  DEPRECATED = 4,
 }
 
 export type UserPerformance = {
@@ -42,12 +42,16 @@ const userPerformanceSchema = new Schema<UserPerformance>({
   extraChar: { type: Number, required: true },
   missedChar: { type: Number, required: true },
 });
-
+const playerSchema = new Schema<Player>({
+  username: { type: String, required: true },
+  performance: { type: [userPerformanceSchema], required: true },
+});
 const roomSchema = new Schema<IRoom>({
   createTime: { type: Date, required: true },
+  startTime: Date,
   roomId: { type: String, required: true },
-  players: [userPerformanceSchema],
-  currentStatus: { type: Number, enum: [0, 1, 2], required: true },
+  players: [playerSchema],
+  currentStatus: { type: Number, enum: [0, 1, 2, 3, 4], required: true },
 });
 
 export const Room = mongoose.model("Room", roomSchema);

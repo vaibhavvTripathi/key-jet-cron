@@ -19,7 +19,11 @@ export function verifyToken(
       return; // Return here to indicate the end of the middleware
     }
     // Attach the decoded payload to the request object
-    req.username = (decoded as JwtPayload).username;
+    const username = (decoded as JwtPayload).username;
+    if (!username) {
+      res.status(401).json("invalid token");
+    }
+    req.username = username;
     next();
   });
 }
