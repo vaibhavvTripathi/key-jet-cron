@@ -5,9 +5,10 @@ export interface IRoomService {
   getRoomData(roomId: string): Promise<IRoom>;
   postSelfPerformanceToRoom(
     userPerformance: UserPerformance,
-    roomId: string
+    roomId: string,
+    username : string
   ): Promise<void>;
   getResultsForRace(roomId: string): Promise<IRoom>;
-  joinRoom(roomId: string, username: string): Promise<IRoom>;
+  joinRoom(roomId: string, username: string): Promise<void>;
   getRacingHistory(username: string): Promise<Array<IRoom>>;
 }
