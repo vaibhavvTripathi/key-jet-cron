@@ -52,3 +52,25 @@ roomRouter.post(
     }
   }
 );
+roomRouter.post(
+  "/result/:roomId",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const roomId = req.params.roomId;
+      const username = req.username;
+      if (!username) {
+        res.status(401).json("UNAUTHORIZED");
+        return;
+      }
+      await RoomService.joinRoom(roomId, username);
+      res.status(200).json("Joined room successfully");
+    } catch (error) {
+      if (error instanceof KeyJetError) {
+        res.status(error.statusCode).json(error.message);
+      } else {
+        res.status(500).json("Internal Server Error");
+      }
+    }
+  }
+);

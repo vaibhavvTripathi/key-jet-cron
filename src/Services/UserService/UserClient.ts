@@ -24,7 +24,7 @@ export const UserClient: IUserClient = {
     try {
       const user = await User.findOne({ username });
       if (!user) {
-        throw new KeyJetError("User not found in the db", 400);
+        throw new KeyJetError("User not found in the db", 404);
       }
       if (!(await authenticateUser(user.password, password))) {
         throw new KeyJetError("User is not authorised", 401);

@@ -8,5 +8,5 @@ export async function authenticateUser(hashedPassword: string, password: string)
 
 // Function to generate JWT token
 export function generateToken(username: string): string {
-    return jwt.sign({ username }, process.env.JWT_KEY as string, { expiresIn: '1h' });
+    return jwt.sign({ username }, process.env.JWT_KEY as string, { expiresIn: '2d' });
 }

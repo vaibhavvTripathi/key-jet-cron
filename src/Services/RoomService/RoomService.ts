@@ -3,6 +3,7 @@ import { IRoom, RaceStatus, Room, UserPerformance } from "../../Models/Room";
 import { RaceHandleFactory } from "../../RaceHandlerFactory/RaceHandleFactory";
 import { v4 as guid } from "uuid";
 import { IRoomService } from "./IRoomService";
+import { error } from "console";
 
 const raceHandler = RaceHandleFactory();
 
@@ -37,7 +38,6 @@ export const RoomService: IRoomService = {
       }
       if (userPerformance.time >= 30) {
         room.currentStatus = RaceStatus.ENDED;
-        await Room.findOneAndUpdate({ roomId }, room, { upsert: true });
       }
       const user = room?.players.find((p) => p.username === username);
       if (!user) {
@@ -48,8 +48,20 @@ export const RoomService: IRoomService = {
       throw err;
     }
   },
-  getResultsForRace: function (roomId: string): Promise<IRoom> {
-    throw new Error("Function not implemented.");
+  getResultsForRace: async function (roomId: string): Promise<IRoom> {
+    try {
+      const room = raceHandler.get(roomId);
+      if (!room) {
+        throw new KeyJetError("Room doesn't exists", 404);
+      }
+      if (room.currentStatus !== RaceStatus.ENDED) {
+        throw new KeyJetError("Race has not ended yet", 404);
+      }
+      await Room.findOneAndUpdate({ roomId: roomId }, room, { upsert: true });
+      return room;
+    } catch (err) {
+      throw err;
+    }
   },
   joinRoom: async function (roomId: string, username: string): Promise<void> {
     try {
@@ -78,9 +90,10 @@ export const RoomService: IRoomService = {
       if (!room) {
         throw new KeyJetError("Room does not exists", 404);
       }
-      if(room.startTime) {
-        const timeDiff = new Date().getTime()-new Date(room.startTime).getTime();
-        if(timeDiff>10) {
+      if (room.startTime) {
+        const timeDiff =
+          new Date().getTime() - new Date(room.startTime).getTime();
+        if (timeDiff > 10) {
           room.currentStatus = RaceStatus.STARTED;
         }
       }
