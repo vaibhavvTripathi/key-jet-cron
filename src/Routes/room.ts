@@ -3,6 +3,7 @@ import { verifyToken } from "../middlewares/authMiddleware";
 import { UserClient } from "../Services/UserService/UserClient";
 import { KeyJetError } from "../Models/KeyJetError";
 import { RoomService } from "../Services/RoomService/RoomService";
+import { UserPerformance } from "../Models/Room";
 export const roomRouter = express.Router();
 
 roomRouter.post("/", verifyToken, async (req: Request, res: Response) => {
@@ -52,8 +53,32 @@ roomRouter.post(
     }
   }
 );
+roomRouter.get(
+  "/results/:roomId",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      console.log("here")
+      const roomId = req.params.roomId;
+      const username = req.username;
+      if (!username) {
+        res.status(401).json("UNAUTHORIZED");
+        return;
+      }
+      const finalRoomState = await RoomService.getResultsForRace(roomId);
+      console.log(finalRoomState,"cccc")
+      res.status(200).json(finalRoomState);
+    } catch (error) {
+      if (error instanceof KeyJetError) {
+        res.status(error.statusCode).json(error.message);
+      } else {
+        res.status(500).json("Internal Server Error");
+      }
+    }
+  }
+);
 roomRouter.post(
-  "/result/:roomId",
+  "/performance/:roomId",
   verifyToken,
   async (req: Request, res: Response) => {
     try {
@@ -63,8 +88,13 @@ roomRouter.post(
         res.status(401).json("UNAUTHORIZED");
         return;
       }
-      await RoomService.joinRoom(roomId, username);
-      res.status(200).json("Joined room successfully");
+      const userPerformance: UserPerformance = req.body;
+      await RoomService.postSelfPerformanceToRoom(
+        userPerformance,
+        roomId,
+        username
+      );
+      res.status(200).json("Performance posted successfully");
     } catch (error) {
       if (error instanceof KeyJetError) {
         res.status(error.statusCode).json(error.message);

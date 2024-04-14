@@ -1,8 +1,8 @@
 import { IRoom, UserPerformance } from "../../Models/Room";
 
 export interface IRoomService {
-  createRoom(username: string): Promise<IRoom>;
   getRoomData(roomId: string): Promise<IRoom>;
+  createRoom(username: string): Promise<string>;
   postSelfPerformanceToRoom(
     userPerformance: UserPerformance,
     roomId: string,

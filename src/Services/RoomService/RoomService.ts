@@ -8,7 +8,7 @@ import { error } from "console";
 const raceHandler = RaceHandleFactory();
 
 export const RoomService: IRoomService = {
-  createRoom: async function (username): Promise<IRoom> {
+  createRoom: async function (username): Promise<string> {
     try {
       const roomId = guid();
       const createTime = new Date();
@@ -21,7 +21,8 @@ export const RoomService: IRoomService = {
       };
       const newRoom = new Room(room);
       await newRoom.save();
-      return room;
+      raceHandler.set(roomId, room);
+      return roomId;
     } catch (err) {
       throw err;
     }
@@ -36,9 +37,6 @@ export const RoomService: IRoomService = {
       if (!room) {
         throw new KeyJetError("No room was found", 404);
       }
-      if (userPerformance.time >= 30) {
-        room.currentStatus = RaceStatus.ENDED;
-      }
       const user = room?.players.find((p) => p.username === username);
       if (!user) {
         throw new KeyJetError("User is not available", 400);
@@ -51,7 +49,7 @@ export const RoomService: IRoomService = {
   getResultsForRace: async function (roomId: string): Promise<IRoom> {
     try {
       const room = raceHandler.get(roomId);
-      if (!room) {
+      if (!room || room.currentStatus === RaceStatus.DEPRECATED) {
         throw new KeyJetError("Room doesn't exists", 404);
       }
       if (room.currentStatus !== RaceStatus.ENDED) {
@@ -76,6 +74,9 @@ export const RoomService: IRoomService = {
       if (room.players.length == 1) {
         room.currentStatus = RaceStatus.INTERMEDIATE;
         room.startTime = new Date();
+        console.log(room.startTime);
+        room.startTime.setSeconds(room.startTime.getSeconds() + 10);
+        console.log(room.startTime);
       }
       room.players.push({ username: username, performance: [] });
       raceHandler.set(roomId, room);
@@ -90,11 +91,19 @@ export const RoomService: IRoomService = {
       if (!room) {
         throw new KeyJetError("Room does not exists", 404);
       }
-      if (room.startTime) {
+      if (room.startTime && room.currentStatus === RaceStatus.INTERMEDIATE) {
+        const timeDiff =
+          new Date(room.startTime).getTime() - new Date().getTime();
+        if (timeDiff <= 0) {
+          room.currentStatus = RaceStatus.STARTED;
+        }
+      }
+      if (room.startTime && room.currentStatus === RaceStatus.STARTED) {
         const timeDiff =
           new Date().getTime() - new Date(room.startTime).getTime();
-        if (timeDiff > 10) {
-          room.currentStatus = RaceStatus.STARTED;
+        console.log(timeDiff);
+        if (timeDiff >= 30000) {
+          room.currentStatus = RaceStatus.ENDED;
         }
       }
       return room;
@@ -102,7 +111,11 @@ export const RoomService: IRoomService = {
       throw err;
     }
   },
-  getRacingHistory: function (username: string): Promise<IRoom[]> {
-    throw new Error("Function not implemented.");
+  getRacingHistory: async function (username: string): Promise<IRoom[]> {
+    try {
+      return await Room.find({'players.username':username});
+    } catch (err) {
+      throw err;
+    }
   },
 };
