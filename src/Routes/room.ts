@@ -66,7 +66,6 @@ roomRouter.get(
         return;
       }
       const finalRoomState = await RoomService.getResultsForRace(roomId);
-      console.log(finalRoomState,"cccc")
       res.status(200).json(finalRoomState);
     } catch (error) {
       if (error instanceof KeyJetError) {
@@ -95,6 +94,27 @@ roomRouter.post(
         username
       );
       res.status(200).json("Performance posted successfully");
+    } catch (error) {
+      if (error instanceof KeyJetError) {
+        res.status(error.statusCode).json(error.message);
+      } else {
+        res.status(500).json("Internal Server Error");
+      }
+    }
+  }
+);
+roomRouter.get(
+  "/history",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const username = req.username;
+      if (!username) {
+        res.status(401).json("UNAUTHORIZED");
+        return;
+      }
+      const history = await RoomService.getRacingHistory(username)
+      res.status(200).json(history);
     } catch (error) {
       if (error instanceof KeyJetError) {
         res.status(error.statusCode).json(error.message);
