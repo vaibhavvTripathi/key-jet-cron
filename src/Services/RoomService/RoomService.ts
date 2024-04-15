@@ -74,9 +74,7 @@ export const RoomService: IRoomService = {
       if (room.players.length == 1) {
         room.currentStatus = RaceStatus.INTERMEDIATE;
         room.startTime = new Date();
-        console.log(room.startTime);
         room.startTime.setSeconds(room.startTime.getSeconds() + 10);
-        console.log(room.startTime);
       }
       room.players.push({ username: username, performance: [] });
       raceHandler.set(roomId, room);
