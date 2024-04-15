@@ -89,6 +89,13 @@ export const RoomService: IRoomService = {
       if (!room) {
         throw new KeyJetError("Room does not exists", 404);
       }
+      if (room.currentStatus === RaceStatus.INITIALISED) {
+        const timeDiff =
+          new Date().getTime() - new Date(room.createTime).getTime();
+        if (timeDiff >= 60000) {
+          room.currentStatus = RaceStatus.DEPRECATED;
+        }
+      }
       if (room.startTime && room.currentStatus === RaceStatus.INTERMEDIATE) {
         const timeDiff =
           new Date(room.startTime).getTime() - new Date().getTime();
@@ -99,7 +106,6 @@ export const RoomService: IRoomService = {
       if (room.startTime && room.currentStatus === RaceStatus.STARTED) {
         const timeDiff =
           new Date().getTime() - new Date(room.startTime).getTime();
-        console.log(timeDiff);
         if (timeDiff >= 30000) {
           room.currentStatus = RaceStatus.ENDED;
         }
@@ -111,7 +117,7 @@ export const RoomService: IRoomService = {
   },
   getRacingHistory: async function (username: string): Promise<IRoom[]> {
     try {
-      return await Room.find({'players.username':username});
+      return await Room.find({ "players.username": username });
     } catch (err) {
       throw err;
     }
