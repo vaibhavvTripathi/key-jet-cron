@@ -9,12 +9,12 @@ export const roomRouter = express.Router();
 roomRouter.post("/", verifyToken, async (req: Request, res: Response) => {
   try {
     const response = await RoomService.createRoom(req.username as string);
-    res.status(200).json(response);
+    return res.status(200).json(response);
   } catch (error) {
     if (error instanceof KeyJetError) {
-      res.status(error.statusCode).json(error.message);
+      return res.status(error.statusCode).json(error.message);
     } else {
-      res.status(500).json("Internal Server Error");
+      return res.status(500).json("Internal Server Error");
     }
   }
 });
@@ -22,12 +22,12 @@ roomRouter.get("/:roomId", verifyToken, async (req: Request, res: Response) => {
   try {
     const roomId = req.params.roomId;
     const room = await RoomService.getRoomData(roomId);
-    res.status(200).json(room);
+    return res.status(200).json(room);
   } catch (error) {
     if (error instanceof KeyJetError) {
-      res.status(error.statusCode).json(error.message);
+      return res.status(error.statusCode).json(error.message);
     } else {
-      res.status(500).json("Internal Server Error");
+      return res.status(500).json("Internal Server Error");
     }
   }
 });
@@ -39,16 +39,16 @@ roomRouter.post(
       const roomId = req.params.roomId;
       const username = req.username;
       if (!username) {
-        res.status(401).json("UNAUTHORIZED");
+        return res.status(401).json("UNAUTHORIZED");
         return;
       }
       await RoomService.joinRoom(roomId, username);
-      res.status(200).json("Joined room successfully");
+      return res.status(200).json("Joined room successfully");
     } catch (error) {
       if (error instanceof KeyJetError) {
-        res.status(error.statusCode).json(error.message);
+        return res.status(error.statusCode).json(error.message);
       } else {
-        res.status(500).json("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
       }
     }
   }
@@ -62,16 +62,16 @@ roomRouter.get(
       const roomId = req.params.roomId;
       const username = req.username;
       if (!username) {
-        res.status(401).json("UNAUTHORIZED");
+        return res.status(401).json("UNAUTHORIZED");
         return;
       }
       const finalRoomState = await RoomService.getResultsForRace(roomId);
-      res.status(200).json(finalRoomState);
+      return res.status(200).json(finalRoomState);
     } catch (error) {
       if (error instanceof KeyJetError) {
-        res.status(error.statusCode).json(error.message);
+        return res.status(error.statusCode).json(error.message);
       } else {
-        res.status(500).json("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
       }
     }
   }
@@ -84,7 +84,7 @@ roomRouter.post(
       const roomId = req.params.roomId;
       const username = req.username;
       if (!username) {
-        res.status(401).json("UNAUTHORIZED");
+        return res.status(401).json("UNAUTHORIZED");
         return;
       }
       const userPerformance: UserPerformance = req.body;
@@ -93,12 +93,12 @@ roomRouter.post(
         roomId,
         username
       );
-      res.status(200).json("Performance posted successfully");
+      return res.status(200).json("Performance posted successfully");
     } catch (error) {
       if (error instanceof KeyJetError) {
-        res.status(error.statusCode).json(error.message);
+        return res.status(error.statusCode).json(error.message);
       } else {
-        res.status(500).json("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
       }
     }
   }
@@ -110,16 +110,16 @@ roomRouter.get(
     try {
       const username = req.username;
       if (!username) {
-        res.status(401).json("UNAUTHORIZED");
+        return res.status(401).json("UNAUTHORIZED");
         return;
       }
       const history = await RoomService.getRacingHistory(username)
-      res.status(200).json(history);
+      return res.status(200).json(history);
     } catch (error) {
       if (error instanceof KeyJetError) {
-        res.status(error.statusCode).json(error.message);
+        return res.status(error.statusCode).json(error.message);
       } else {
-        res.status(500).json("Internal Server Error");
+        return res.status(500).json("Internal Server Error");
       }
     }
   }
