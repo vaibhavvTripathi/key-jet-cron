@@ -50,12 +50,17 @@ export const RoomService: IRoomService = {
     try {
       const room = raceHandler.get(roomId);
       if (!room || room.currentStatus === RaceStatus.DEPRECATED) {
+        const savedRoom = await Room.findOne({ roomId: roomId });
+        if (savedRoom) {
+          return savedRoom;
+        }
         throw new KeyJetError("Room doesn't exists", 404);
       }
       if (room.currentStatus !== RaceStatus.ENDED) {
         throw new KeyJetError("Race has not ended yet", 404);
       }
       await Room.findOneAndUpdate({ roomId: roomId }, room, { upsert: true });
+      raceHandler.delete(roomId);
       return room;
     } catch (err) {
       throw err;
