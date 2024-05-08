@@ -60,7 +60,6 @@ export const RoomService: IRoomService = {
         throw new KeyJetError("Race has not ended yet", 404);
       }
       await Room.findOneAndUpdate({ roomId: roomId }, room, { upsert: true });
-      raceHandler.delete(roomId);
       return room;
     } catch (err) {
       throw err;
