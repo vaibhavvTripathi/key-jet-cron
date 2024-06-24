@@ -1,27 +1,17 @@
-import express, { Express, Request, Response } from "express";
-import { startServer } from "./Helper/startServer";
-import { UserClient } from "./Services/UserService/UserClient";
-import { verifyToken } from "./middlewares/authMiddleware";
-import { authRouter } from "./Routes/auth";
+import { CronJob } from "cron";
 import dotenv from "dotenv";
-import { roomRouter } from "./Routes/room";
-declare global {
-  namespace Express {
-    interface Request {
-      username?: string;
-    }
-  }
-}
-const app: Express = express();
-var cors = require('cors')
-app.use(cors())
-const bodyParser = require("body-parser");
-app.use(bodyParser.json());
+import dbConnect from "./Helper/dbConnect";
+import Redis from "ioredis";
+import { updateDbWithNewRoomData } from "./Jobs/RoomJobs";
 dotenv.config();
-const port = process.env.PORT;
-app.get("/api/v0.1/health", async (req: Request, res: Response) => {
-  res.status(200).json("Pong!");
-});
-app.use("/api/v0.1/auth", authRouter);
-app.use("/api/v0.1/room", roomRouter);
-app.listen(port, async () => startServer(Number(port)));
+
+const startup = async () => {
+  await loadEssentialDependencies();
+  await updateDbWithNewRoomData.start();
+};
+
+const loadEssentialDependencies = async () => {
+  await dbConnect();
+  console.log("setup done !!");
+};
+startup();
